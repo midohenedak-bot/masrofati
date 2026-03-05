@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>مصروفاتي</title>
+<meta name="description" content="تطبيق إدارة المصروفات الشخصية">
+<meta name="theme-color" content="#141928" id="themeColorMeta">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مصروفاتي">
+<link rel="manifest" id="manifestLink">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#f0f3fb;
+  --surface:#ffffff;
+  --surface2:#f5f7fd;
+  --border:#e4e9f5;
+  --text:#141928;
+  --muted:#8892b8;
+  --green:#00c48c;
+  --green-bg:#e6faf4;
+  --red:#f2506e;
+  --red-bg:#fdeef2;
+  --blue:#4f6ef7;
+  --blue-bg:#eef1fe;
+  --gold:#f5a623;
+  --gold-bg:#fff7e8;
+  --purple:#9b5de5;
+  --purple-bg:#f3eeff;
+  --shadow:0 2px 16px rgba(79,110,247,.07);
+  --shadow-md:0 6px 24px rgba(79,110,247,.12);
+  --shadow-lg:0 16px 48px rgba(79,110,247,.18);
+  --r:18px;--r-sm:12px;--r-xs:8px;
+}
+
+[data-theme="dark"]{
+  --bg:#0f1120;
+  --surface:#1a1f36;
+  --surface2:#222844;
+  --border:#2d3561;
+  --text:#e8ecff;
+  --muted:#5c6a99;
+  --green:#00c48c;
+  --green-bg:#0d2e24;
+  --red:#f2506e;
+  --red-bg:#2e0e17;
+  --blue:#6b83f7;
+  --blue-bg:#141a3a;
+  --gold:#f5a623;
+  --gold-bg:#2a1f06;
+  --purple:#b07af5;
+  --purple-bg:#1f1033;
+  --shadow:0 2px 16px rgba(0,0,0,.3);
+  --shadow-md:0 6px 24px rgba(0,0,0,.4);
+  --shadow-lg:0 16px 48px rgba(0,0,0,.5);
+}
+
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+
+/* HEADER */
+.header{
+  background:linear-gradient(145deg,#141928 0%,#1e2847 60%,#2d3a70 100%);
+  padding:28px 20px 72px;
+  position:relative;overflow:hidden;
+}
+[data-theme="dark"] .header{background:linear-gradient(145deg,#080c1a 0%,#0f1628 60%,#1a2050 100%)}
+.header-orb1,.header-orb2,.header-orb3{position:absolute;border-radius:50%;pointer-events:none}
+.header-orb1{width:200px;height:200px;top:-80px;right:-50px;background:radial-gradient(circle,rgba(79,110,247,.3),transparent 70%)}
+.header-orb2{width:150px;height:150px;bottom:-50px;left:-30px;background:radial-gradient(circle,rgba(0,196,140,.2),transparent 70%)}
+.header-orb3{width:100px;height:100px;top:20px;left:50%;background:radial-gradient(circle,rgba(155,93,229,.2),transparent 70%)}
+
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:relative;z-index:1}
+.app-logo{display:flex;align-items:center;gap:10px}
+.app-icon{width:36px;height:36px;background:linear-gradient(135deg,#4f6ef7,#9b5de5);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 4px 12px rgba(79,110,247,.4)}
+.app-name{font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:-.5px}
+.app-name span{color:#7c9eff}
+.header-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 10px;cursor:pointer;font-size:.95rem;color:#fff;transition:background .2s;line-height:1}
+.icon-btn:hover{background:rgba(255,255,255,.2)}
+.date-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75);padding:6px 12px;border-radius:20px;font-size:.75rem;font-weight:500}
+
+/* BALANCE HERO */
+.balance-hero{position:relative;z-index:1;text-align:center}
+.balance-label{color:rgba(255,255,255,.45);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+.balance-amount{display:flex;align-items:baseline;justify-content:center;gap:8px;margin-bottom:6px}
+.balance-currency{font-size:1rem;font-weight:500;color:rgba(255,255,255,.55)}
+.balance-num{font-size:2.6rem;font-weight:700;color:#fff;letter-spacing:-2px;line-height:1;transition:color .3s}
+.balance-status{font-size:.75rem;color:rgba(255,255,255,.4);font-weight:500}
+
+/* MAIN */
+.main{padding:0 14px 100px;margin-top:-46px;position:relative;z-index:2;max-width:520px;margin-left:auto;margin-right:auto}
+
+/* STATS CARDS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);animation:up .4s ease both;transition:background .3s,border .3s}
+.stat-card:nth-child(2){animation-delay:.06s}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.stat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.stat-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.stat-icon.g{background:var(--green-bg)}
+.stat-icon.r{background:var(--red-bg)}
+.stat-trend{font-size:.68rem;padding:2px 7px;border-radius:10px;font-weight:700}
+.stat-trend.up{background:var(--green-bg);color:var(--green)}
+.stat-trend.down{background:var(--red-bg);color:var(--red)}
+.stat-label{font-size:.68rem;color:var(--muted);font-weight:500;margin-bottom:3px}
+.stat-val{font-size:1.05rem;font-weight:700;letter-spacing:-.3px}
+.stat-val.g{color:var(--green)}
+.stat-val.r{color:var(--red)}
+
+/* QUICK ACTIONS */
+.quick-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.quick-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 6px;cursor:pointer;text-align:center;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.65rem;color:var(--muted);font-weight:600;transition:all .2s;box-shadow:var(--shadow)}
+.quick-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);transform:translateY(-1px)}
+.quick-btn .qicon{font-size:1.2rem;display:block;margin-bottom:4px}
+
+/* SEARCH */
+.search-wrap{margin-bottom:12px;position:relative}
+.search-icon{position:absolute;top:50%;transform:translateY(-50%);right:14px;color:var(--muted);font-size:.9rem;pointer-events:none}
+.search-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 38px 11px 14px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.88rem;color:var(--text);outline:none;box-shadow:var(--shadow);transition:border .2s,background .3s}
+.search-input:focus{border-color:var(--blue)}
+.search-input::placeholder{color:var(--muted)}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-radius:var(--r-sm);padding:3px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border);gap:2px;overflow-x:auto;scrollbar-width:none;transition:background .3s,border .3s}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:8px 12px;border:none;border-radius:9px;background:none;cursor:pointer;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.78rem;color:var(--muted);font-weight:500;transition:all .2s;white-space:nowrap}
+.tab.active{background:var(--text);color:#fff;font-weight:700}
+[data-theme="dark"] .tab.active{background:#4f6ef7;color:#fff}
+
+/* ALERT BANNER */
+.alert-banner{border-radius:var(--r-sm);padding:10px 14px;margin-bottom:10px;font-size:.8rem;font-weight:600;animation:up .3s ease;display:flex;align-items:center;gap:8px}
+.alert-banner.warn{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red)}
+.alert-banner.info{background:var(--gold-bg);color:var(--gold);border:1.5px solid var(--gold)}
+
+/* DATE NAV */
+.date-nav{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border);transition:background .3s,border .3s}
+.date-nav-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1rem;padding:4px 8px;border-radius:7px;transition:background .15s;font-family:'IBM Plex Sans Arabic',sans-serif}
+.date-nav-btn:hover{background:var(--bg)}
+.date-nav-label{font-weight:600;font-size:.88rem;color:var(--text)}
+.today-badge{background:var(--blue-bg);color:var(--blue);font-size:.65rem;padding:2px 8px;border-radius:10px;font-weight:700;margin-right:6px}
+
+/* TRANSACTION CARD */
+.trans-group{margin-bottom:18px}
+.trans-group-date{font-size:.68rem;color:var(--muted);font-weight:700;margin-bottom:8px;padding:0 2px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.trans-group-date::after{content:'';flex:1;height:1px;background:var(--border)}
+.trans-card{background:var(--surface);border-radius:var(--r-sm);padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:7px;animation:up .3s ease both;transition:transform .15s,background .3s,border .3s,box-shadow .2s;cursor:default}
+.trans-card:hover{transform:translateX(-2px);box-shadow:var(--shadow-md)}
+.trans-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.trans-body{flex:1;min-width:0}
+.trans-name{font-weight:600;font-size:.88rem;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trans-sub{font-size:.68rem;color:var(--muted)}
+.trans-right{text-align:left;flex-shrink:0}
+.trans-amount{font-weight:700;font-size:.9rem;letter-spacing:-.3px}
+.trans-amount.income{color:var(--green)}
+.trans-amount.expense{color:var(--red)}
+.trans-actions{display:flex;gap:4px;margin-top:3px;justify-content:flex-end}
+.btn-act{background:none;border:none;cursor:pointer;color:var(--border);font-size:.78rem;padding:3px 5px;border-radius:5px;transition:color .15s,background .15s}
+.btn-act.edit:hover{color:var(--blue);background:var(--blue-bg)}
+.btn-act.del:hover{color:var(--red);background:var(--red-bg)}
+.day-summary{background:linear-gradient(135deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:4px;transition:background .3s}
+.day-summary-label{font-size:.75rem;color:var(--muted);font-weight:600}
+.day-summary-val{font-weight:800;font-size:.95rem}
+
+/* MONTH CARD */
+.month-card{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;animation:up .3s ease both;transition:background .3s,border .3s}
+.month-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.month-card-name{font-weight:700;font-size:.9rem}
+.net-badge{padding:3px 11px;border-radius:20px;font-size:.72rem;font-weight:700}
+.bars-wrap{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:flex;align-items:center;gap:8px}
+.bar-label{font-size:.7rem;color:var(--muted);width:52px;flex-shrink:0}
+.bar-track{flex:1;height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.34,1.56,.64,1)}
+.bar-fill.g{background:linear-gradient(90deg,var(--green),#00e8aa)}
+.bar-fill.r{background:linear-gradient(90deg,var(--red),#ff7b9a)}
+.bar-val{font-size:.72rem;font-weight:700;width:68px;text-align:left;flex-shrink:0}
+.bar-val.g{color:var(--green)}.bar-val.r{color:var(--red)}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state .eicon{font-size:2.2rem;margin-bottom:10px;opacity:.7}
+.empty-state p{font-size:.82rem;line-height:1.6}
+
+/* BUDGET */
+.budget-card{background:var(--surface);border-radius:var(--r-sm);padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:9px;animation:up .3s ease both;transition:background .3s,border .3s}
+.budget-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.budget-cat-name{font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:6px}
+.budget-amounts{font-size:.72rem;color:var(--muted)}
+.budget-bar-track{width:100%;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.budget-bar-fill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.34,1.56,.64,1)}
+.budget-status{font-size:.7rem;font-weight:600}
+.budget-edit-row{display:flex;gap:7px;margin-top:10px;align-items:center}
+.budget-input{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.82rem;color:var(--text);outline:none;transition:border .2s,background .3s}
+.budget-input:focus{border-color:var(--blue)}
+.budget-save-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.budget-save-btn:hover{opacity:.85}
+
+/* CHART */
+.chart-wrap{background:var(--surface);border-radius:var(--r-sm);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px;transition:background .3s,border .3s}
+.chart-title{font-weight:700;font-size:.88rem;margin-bottom:14px;color:var(--text)}
+.chart-legend{display:flex;gap:14px;margin-top:10px;font-size:.72rem;font-weight:600;flex-wrap:wrap}
+.legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-left:4px}
+.month-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:9px;margin-bottom:12px;scrollbar-width:none}
+.month-chips::-webkit-scrollbar{display:none}
+.month-chip{flex-shrink:0;padding:5px 13px;border-radius:18px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.72rem;color:var(--muted);transition:all .15s;white-space:nowrap}
+.month-chip.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue);font-weight:700}
+
+/* DONUT CHART */
+.donut-section{display:flex;flex-direction:column;gap:14px}
+.donut-wrap{display:flex;align-items:center;justify-content:center;margin:8px 0}
+.cat-list-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.cat-list-item:last-child{border:none}
+.cat-color-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.cat-list-name{flex:1;font-weight:600}
+.cat-list-pct{color:var(--muted);margin-left:auto}
+.cat-list-val{font-weight:700;color:var(--red);margin-right:4px}
+
+/* RECURRING */
+.recurring-card{background:var(--surface);border-radius:var(--r-sm);padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:9px;display:flex;align-items:center;gap:12px;animation:up .3s ease both;transition:background .3s,border .3s}
+.recurring-info{flex:1}
+.recurring-name{font-weight:700;font-size:.88rem;margin-bottom:2px}
+.recurring-meta{font-size:.68rem;color:var(--muted)}
+.recurring-actions{display:flex;gap:5px;flex-direction:column}
+.btn-apply{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green);border-radius:7px;padding:5px 10px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-apply:hover{background:var(--green);color:#fff}
+.rform{background:var(--surface);border-radius:var(--r-sm);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px;transition:background .3s,border .3s}
+.rform-title{font-weight:700;font-size:.88rem;margin-bottom:12px;color:var(--blue)}
+
+/* SUMMARY */
+.summary-card{background:var(--surface);border-radius:var(--r-sm);padding:16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;animation:up .3s ease both;transition:background .3s,border .3s}
+.summary-card-title{font-weight:700;font-size:.9rem;margin-bottom:12px}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.summary-row:last-child{border:none}
+.summary-row .lbl{color:var(--muted)}
+.summary-row .val{font-weight:700}
+.insight-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);font-size:.8rem;line-height:1.55}
+.insight-item:last-child{border:none}
+.insight-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.diff-badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.65rem;font-weight:700;margin-right:5px}
+.diff-up{background:var(--red-bg);color:var(--red)}
+.diff-down{background:var(--green-bg);color:var(--green)}
+.diff-same{background:var(--blue-bg);color:var(--blue)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,14,32,.65);backdrop-filter:blur(6px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:26px 26px 0 0;padding:24px 20px 36px;width:100%;max-width:520px;animation:modalIn .28s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;transition:background .3s}
+@keyframes modalIn{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-size:1rem;font-weight:700;margin-bottom:18px;color:var(--text)}
+
+/* TYPE SELECTOR */
+.type-selector{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.type-btn{padding:11px;border-radius:var(--r-sm);border:2px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.83rem;font-weight:600;color:var(--muted);transition:all .2s}
+.type-btn.active.expense{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.type-btn.active.income{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+
+/* CATEGORIES */
+.cat-label{font-size:.72rem;color:var(--muted);font-weight:500;margin-bottom:8px}
+.cat-scroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:11px;margin-bottom:16px;scrollbar-width:none}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cat-chip{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.75rem;color:var(--muted);transition:all .15s;white-space:nowrap}
+.cat-chip.selected{border-color:var(--blue);background:var(--blue-bg);color:var(--blue);font-weight:700}
+
+/* FIELDS */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.72rem;color:var(--muted);font-weight:500;margin-bottom:6px}
+.field input,.field textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.92rem;outline:none;transition:border .2s,background .3s}
+.field input:focus,.field textarea:focus{border-color:var(--blue);background:var(--surface)}
+.field input.amount-input{font-size:1.2rem;font-weight:700;letter-spacing:-.5px}
+.field textarea{resize:none;height:64px;font-size:.85rem}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* SUBMIT BTN */
+.btn-submit{width:100%;padding:14px;border:none;border-radius:var(--r-sm);background:linear-gradient(135deg,#4f6ef7,#9b5de5);color:#fff;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:4px;transition:opacity .2s,transform .1s;letter-spacing:.2px}
+.btn-submit:hover{opacity:.9;transform:scale(.99)}
+
+/* FAB */
+.fab{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:100;background:linear-gradient(135deg,#4f6ef7,#9b5de5);color:#fff;border:none;border-radius:28px;padding:13px 28px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(79,110,247,.45);display:flex;align-items:center;gap:7px;transition:transform .2s,box-shadow .2s}
+.fab:hover{transform:translateX(-50%) translateY(-2px);box-shadow:0 12px 36px rgba(79,110,247,.55)}
+.fab-plus{font-size:1.3rem;line-height:1}
+
+/* DATA MODAL */
+.data-modal-overlay{position:fixed;inset:0;background:rgba(10,14,32,.65);backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.data-modal-overlay.open{display:flex}
+.data-modal{background:var(--surface);border-radius:26px 26px 0 0;padding:24px 20px 40px;width:100%;max-width:520px;animation:modalIn .28s cubic-bezier(.34,1.56,.64,1);transition:background .3s}
+.data-modal-title{font-size:1rem;font-weight:700;margin-bottom:18px;color:var(--text)}
+.action-btn{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.88rem;font-weight:600;color:var(--text);cursor:pointer;text-align:right;margin-bottom:9px;display:flex;align-items:center;gap:11px;transition:all .18s}
+.action-btn:hover{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+.action-icon{font-size:1.2rem}
+.action-text{flex:1}
+.action-sub{font-size:.68rem;color:var(--muted);font-weight:400;display:block;margin-top:1px}
+.btn-cancel-data{width:100%;padding:12px;border:none;border-radius:var(--r-sm);background:var(--bg);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.85rem;color:var(--muted);cursor:pointer;margin-top:2px;transition:background .15s}
+.btn-cancel-data:hover{background:var(--border)}
+.month-export-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;max-height:220px;overflow-y:auto}
+.month-export-btn{padding:9px 10px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface2);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.78rem;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s}
+.month-export-btn:hover{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+
+#importFileInput{display:none}
+
+/* SPEND RING */
+.spend-ring-wrap{display:flex;align-items:center;gap:16px;background:var(--surface);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;transition:background .3s,border .3s}
+.ring-labels{flex:1}
+.ring-label-row{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:3px}
+.ring-label-row .rl{color:var(--muted);font-weight:500}
+.ring-label-row .rv{font-weight:700}
+
+/* SAFE AREA */
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.fab{bottom:calc(22px + env(safe-area-inset-bottom))}
+
+/* NOTIFICATION */
+.notif{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-120px);z-index:500;background:var(--text);color:var(--bg);padding:10px 20px;border-radius:20px;font-size:.82rem;font-weight:700;box-shadow:var(--shadow-lg);transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+.notif.show{transform:translateX(-50%) translateY(0)}
+
+/* PWA INSTALL BANNER */
+.install-banner{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(120px);z-index:400;background:linear-gradient(135deg,#4f6ef7,#9b5de5);color:#fff;border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(79,110,247,.5);transition:transform .5s cubic-bezier(.34,1.56,.64,1);min-width:260px;max-width:320px}
+.install-banner.show{transform:translateX(-50%) translateY(0)}
+.install-banner-text{flex:1}
+.install-banner-title{font-weight:700;font-size:.85rem;margin-bottom:2px}
+.install-banner-sub{font-size:.68rem;opacity:.8}
+.install-banner-btn{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;padding:7px 14px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s}
+.install-banner-btn:hover{background:rgba(255,255,255,.35)}
+.install-banner-close{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:1rem;padding:2px;line-height:1}
+
+/* IOS INSTALL BANNER */
+.ios-banner{position:fixed;bottom:calc(72px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(120px);z-index:400;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow-lg);transition:transform .5s cubic-bezier(.34,1.56,.64,1);width:calc(100% - 32px);max-width:320px}
+.ios-banner.show{transform:translateX(-50%) translateY(0)}
+.ios-banner-title{font-weight:700;font-size:.85rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ios-banner-steps{font-size:.75rem;color:var(--muted);line-height:1.8}
+.ios-banner-close{position:absolute;top:10px;left:12px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem}
+
+/* PROGRESS BAR ANIMATION */
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+</style>
+</head>
+<body>
+
+<div id="notif" class="notif"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-orb1"></div>
+  <div class="header-orb2"></div>
+  <div class="header-orb3"></div>
+  <div class="header-top">
+    <div class="app-logo">
+      <div class="app-icon">💼</div>
+      <div class="app-name">مصروف<span>اتي</span></div>
+    </div>
+    <div class="header-actions">
+      <div class="date-pill" id="headerDate"></div>
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="الوضع الليلي">🌙</button>
+      <button class="icon-btn" onclick="openDataModal()" title="البيانات">⚙️</button>
+    </div>
+  </div>
+  <div class="balance-hero">
+    <div class="balance-label">الرصيد الإجمالي</div>
+    <div class="balance-amount">
+      <span class="balance-currency">د.ك</span>
+      <span class="balance-num" id="totalBalance">0.000</span>
+    </div>
+    <div class="balance-status" id="balanceStatus">الشهر الحالي</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div id="alertsArea"></div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon g">💚</div>
+        <div class="stat-trend up" id="incTrend">—</div>
+      </div>
+      <div class="stat-label">إيرادات الشهر</div>
+      <div class="stat-val g" id="monthIncome">0.000</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top">
+        <div class="stat-icon r">❤️</div>
+        <div class="stat-trend down" id="expTrend">—</div>
+      </div>
+      <div class="stat-label">مصروفات الشهر</div>
+      <div class="stat-val r" id="monthExpense">0.000</div>
+    </div>
+  </div>
+
+  <!-- SPEND RING -->
+  <div class="spend-ring-wrap" id="spendRing" style="display:none">
+    <svg width="64" height="64" viewBox="0 0 64 64" id="ringChart"></svg>
+    <div class="ring-labels" id="ringLabels"></div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div class="quick-btns">
+    <button class="quick-btn" onclick="openModal()"><span class="qicon">➕</span>حركة جديدة</button>
+    <button class="quick-btn" onclick="switchTab('budget',document.querySelectorAll('.tab')[2])"><span class="qicon">🎯</span>الميزانية</button>
+    <button class="quick-btn" onclick="switchTab('chart',document.querySelectorAll('.tab')[3])"><span class="qicon">📈</span>الرسوم</button>
+    <button class="quick-btn" onclick="switchTab('summary',document.querySelectorAll('.tab')[5])"><span class="qicon">💡</span>الملخص</button>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" class="search-input" placeholder="ابحث في حركاتك..." oninput="renderSearch()" />
+  </div>
+  <div id="searchResults" style="display:none;margin-bottom:12px;"></div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('daily',this)">📆 اليومي</button>
+    <button class="tab" onclick="switchTab('monthly',this)">📊 الشهري</button>
+    <button class="tab" onclick="switchTab('budget',this)">🎯 الميزانية</button>
+    <button class="tab" onclick="switchTab('chart',this)">📈 الرسم</button>
+    <button class="tab" onclick="switchTab('recurring',this)">🔁 تكرار</button>
+    <button class="tab" onclick="switchTab('summary',this)">💡 ملخص</button>
+  </div>
+
+  <!-- VIEWS -->
+  <div id="view-daily">
+    <div class="date-nav">
+      <button class="date-nav-btn" onclick="changeDay(-1)">◀</button>
+      <div class="date-nav-label" id="dayNavLabel"></div>
+      <button class="date-nav-btn" onclick="changeDay(1)">▶</button>
+    </div>
+    <div id="dailyContent"></div>
+  </div>
+
+  <div id="view-monthly" style="display:none">
+    <div id="monthlyContent"></div>
+  </div>
+
+  <div id="view-budget" style="display:none">
+    <div id="budgetContent"></div>
+  </div>
+
+  <div id="view-chart" style="display:none">
+    <div id="chartContent"></div>
+  </div>
+
+  <div id="view-recurring" style="display:none">
+    <div id="recurringContent"></div>
+  </div>
+
+  <div id="view-summary" style="display:none">
+    <div id="summaryContent"></div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" onclick="openModal()">
+  <span class="fab-plus">+</span> إضافة حركة
+</button>
+
+<!-- TRANSACTION MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">إضافة حركة جديدة</div>
+    <div class="type-selector">
+      <button class="type-btn active expense" id="btnExpense" onclick="selectType('expense')">🔴 مصروف</button>
+      <button class="type-btn income" id="btnIncome" onclick="selectType('income')">🟢 إيراد</button>
+    </div>
+    <div class="cat-label">الفئة</div>
+    <div class="cat-scroll" id="catScroll"></div>
+    <div class="field">
+      <label>المبلغ (د.ك)</label>
+      <input type="number" class="amount-input" id="fAmount" placeholder="0.000" min="0" step="0.001" />
+    </div>
+    <div class="field">
+      <label>البيان / الوصف</label>
+      <input type="text" id="fDesc" placeholder="مثال: غداء في مطعم الساحة..." />
+    </div>
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0">
+        <label>التاريخ</label>
+        <input type="date" id="fDate" />
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>الوقت</label>
+        <input type="time" id="fTime" />
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>ملاحظة (اختياري)</label>
+      <input type="text" id="fNote" placeholder="أي تفاصيل إضافية..." />
+    </div>
+    <button class="btn-submit" id="btnSubmit" onclick="submitForm()">✓ حفظ الحركة</button>
+  </div>
+</div>
+
+<!-- DATA MODAL -->
+<div class="data-modal-overlay" id="dataModalOverlay" onclick="closeDataModalOutside(event)">
+  <div class="data-modal" id="dataModalInner">
+    <div class="modal-handle"></div>
+    <div class="data-modal-title" id="dataModalTitle">📁 إدارة البيانات</div>
+    <div id="dataModalContent"></div>
+  </div>
+</div>
+<input type="file" id="importFileInput" accept=".json" onchange="handleImportFile(event)" />
+
+<script>
+/* ========== DATA ========== */
+const CATS={
+  expense:[
+    {id:'food',emoji:'🍽️',name:'طعام وشراب'},
+    {id:'transport',emoji:'🚗',name:'مواصلات'},
+    {id:'shopping',emoji:'🛍️',name:'تسوق'},
+    {id:'bills',emoji:'💡',name:'فواتير'},
+    {id:'health',emoji:'🏥',name:'صحة'},
+    {id:'education',emoji:'📚',name:'تعليم'},
+    {id:'entertainment',emoji:'🎮',name:'ترفيه'},
+    {id:'home',emoji:'🏠',name:'منزل'},
+    {id:'clothing',emoji:'👔',name:'ملابس'},
+    {id:'cafe',emoji:'☕',name:'مقاهي'},
+    {id:'travel',emoji:'✈️',name:'سفر'},
+    {id:'other_exp',emoji:'📦',name:'أخرى'},
+  ],
+  income:[
+    {id:'salary',emoji:'💰',name:'مرتب'},
+    {id:'bonus',emoji:'🎁',name:'مكافأة'},
+    {id:'freelance',emoji:'💻',name:'عمل حر'},
+    {id:'investment',emoji:'📈',name:'استثمار'},
+    {id:'gift',emoji:'🎀',name:'هدية'},
+    {id:'rent',emoji:'🏢',name:'إيجار'},
+    {id:'refund',emoji:'↩️',name:'استرداد'},
+    {id:'other_inc',emoji:'✨',name:'أخرى'},
+  ]
+};
+const MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const COLORS=['#f2506e','#4f6ef7','#00c48c','#f5a623','#9b5de5','#fd79a8','#00cec9','#e17055','#74b9ff','#55efc4','#a29bfe','#fdcb6e'];
+
+let transactions=JSON.parse(localStorage.getItem('masrofati_v3')||'[]');
+let budgets=JSON.parse(localStorage.getItem('masrofati_budgets_v3')||'{}');
+let recurringList=JSON.parse(localStorage.getItem('masrofati_recurring_v3')||'[]');
+let selectedType='expense',selectedCat='food',currentDay=today(),activeTab='daily',editingId=null;
+let chartMonth=new Date().toISOString().substring(0,7);
+let rType='expense',rCat='food';
+let isDark=localStorage.getItem('masrofati_theme')==='dark';
+
+function today(){return new Date().toISOString().split('T')[0]}
+function save(){localStorage.setItem('masrofati_v3',JSON.stringify(transactions))}
+function saveBudgets(){localStorage.setItem('masrofati_budgets_v3',JSON.stringify(budgets))}
+function saveRecurring(){localStorage.setItem('masrofati_recurring_v3',JSON.stringify(recurringList))}
+function fmt(n){return parseFloat(n).toFixed(3)}
+function catById(id,type){return(CATS[type]||[]).find(c=>c.id===id)||{emoji:'📦',name:'أخرى'}}
+function monthKey(d){return d.substring(0,7)}
+
+/* THEME */
+function toggleTheme(){
+  isDark=!isDark;
+  document.documentElement.setAttribute('data-theme',isDark?'dark':'');
+  document.getElementById('themeBtn').textContent=isDark?'☀️':'🌙';
+  localStorage.setItem('masrofati_theme',isDark?'dark':'');
+}
+if(isDark){document.documentElement.setAttribute('data-theme','dark');document.getElementById('themeBtn').textContent='☀️'}
+
+/* NOTIFICATION */
+function notify(msg){
+  const el=document.getElementById('notif');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+/* MODAL */
+function openModal(){
+  editingId=null;
+  document.getElementById('modalTitle').textContent='إضافة حركة جديدة';
+  document.getElementById('btnSubmit').textContent='✓ حفظ الحركة';
+  const now=new Date();
+  document.getElementById('fDate').value=currentDay;
+  document.getElementById('fTime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  document.getElementById('fAmount').value='';
+  document.getElementById('fDesc').value='';
+  document.getElementById('fNote').value='';
+  selectType('expense');
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('fAmount').focus(),150);
+}
+
+function editTransaction(id){
+  const t=transactions.find(x=>x.id===id);if(!t)return;
+  editingId=id;
+  document.getElementById('modalTitle').textContent='تعديل الحركة';
+  document.getElementById('btnSubmit').textContent='✓ حفظ التعديل';
+  selectType(t.type);selectedCat=t.cat;renderCats();
+  document.getElementById('fDate').value=t.date;
+  document.getElementById('fTime').value=t.time||'';
+  document.getElementById('fAmount').value=t.amount;
+  document.getElementById('fDesc').value=t.desc;
+  document.getElementById('fNote').value=t.note||'';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open')}
+function closeModalOutside(e){if(e.target===document.getElementById('modalOverlay'))closeModal()}
+
+function selectType(type){
+  selectedType=type;
+  document.getElementById('btnExpense').className='type-btn'+(type==='expense'?' active expense':'');
+  document.getElementById('btnIncome').className='type-btn'+(type==='income'?' active income':'');
+  selectedCat=CATS[type][0].id;renderCats();
+}
+
+function renderCats(){
+  document.getElementById('catScroll').innerHTML=CATS[selectedType].map(c=>
+    `<button class="cat-chip ${c.id===selectedCat?'selected':''}" onclick="selectCat('${c.id}')">${c.emoji} ${c.name}</button>`
+  ).join('');
+}
+
+function selectCat(id){selectedCat=id;renderCats()}
+
+function submitForm(){
+  const amount=parseFloat(document.getElementById('fAmount').value);
+  const desc=document.getElementById('fDesc').value.trim();
+  const date=document.getElementById('fDate').value;
+  const time=document.getElementById('fTime').value;
+  const note=document.getElementById('fNote').value.trim();
+  if(!amount||amount<=0||!desc||!date){notify('❌ الرجاء إدخال المبلغ والبيان والتاريخ');return}
+  if(editingId!==null){
+    const idx=transactions.findIndex(x=>x.id===editingId);
+    if(idx!==-1)transactions[idx]={...transactions[idx],type:selectedType,cat:selectedCat,amount,desc,date,time,note};
+    editingId=null;notify('✅ تم تعديل الحركة');
+  } else {
+    transactions.unshift({id:Date.now(),type:selectedType,cat:selectedCat,amount,desc,date,time,note});
+    notify('✅ تمت إضافة الحركة');
+  }
+  save();closeModal();updateAll();
+}
+
+function deleteTransaction(id){
+  if(!confirm('هل تريد حذف هذه الحركة؟'))return;
+  transactions=transactions.filter(t=>t.id!==id);
+  save();updateAll();notify('🗑️ تم حذف الحركة');
+}
+
+/* NAVIGATION */
+function changeDay(d){
+  const dt=new Date(currentDay);dt.setDate(dt.getDate()+d);
+  currentDay=dt.toISOString().split('T')[0];renderDaily();
+}
+
+function switchTab(tab,el){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['daily','monthly','budget','chart','recurring','summary'].forEach(v=>
+    document.getElementById('view-'+v).style.display=v===tab?'':'none'
+  );
+  if(tab==='budget')renderBudget();
+  if(tab==='chart')renderChart();
+  if(tab==='recurring')renderRecurring();
+  if(tab==='summary')renderSummary();
+}
+
+/* STATS UPDATE */
+function updateStats(){
+  const now=new Date().toISOString().substring(0,7);
+  const lastDate=new Date();lastDate.setMonth(lastDate.getMonth()-1);
+  const last=lastDate.toISOString().substring(0,7);
+  const mT=transactions.filter(t=>t.date.startsWith(now));
+  const lT=transactions.filter(t=>t.date.startsWith(last));
+  const mInc=mT.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const mExp=mT.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const lInc=lT.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const lExp=lT.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const allInc=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const allExp=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const net=allInc-allExp;
+
+  document.getElementById('monthIncome').textContent=fmt(mInc);
+  document.getElementById('monthExpense').textContent=fmt(mExp);
+  document.getElementById('totalBalance').textContent=fmt(Math.abs(net));
+  document.getElementById('totalBalance').style.color=net>=0?'#7cffcc':'#ff7b9a';
+  document.getElementById('balanceStatus').textContent=net>=0?'↑ رصيد إيجابي':'↓ رصيد سلبي';
+
+  // Trends
+  const incDiff=lInc>0?((mInc-lInc)/lInc*100).toFixed(0):null;
+  const expDiff=lExp>0?((mExp-lExp)/lExp*100).toFixed(0):null;
+  const incEl=document.getElementById('incTrend');
+  const expEl=document.getElementById('expTrend');
+  if(incDiff!==null){incEl.textContent=(incDiff>0?'↑':'↓')+Math.abs(incDiff)+'%';incEl.className='stat-trend '+(incDiff>0?'up':'down')}
+  if(expDiff!==null){expEl.textContent=(expDiff>0?'↑':'↓')+Math.abs(expDiff)+'%';expEl.className='stat-trend '+(expDiff>0?'down':'up')}
+
+  // Spend ring
+  renderSpendRing(mInc,mExp);
+}
+
+function renderSpendRing(inc,exp){
+  const ring=document.getElementById('spendRing');
+  if(inc===0&&exp===0){ring.style.display='none';return}
+  ring.style.display='flex';
+  const total=inc+exp;
+  const incPct=total>0?(inc/total):0.5;
+  const expPct=1-incPct;
+  const r=28,cx=32,cy=32,stroke=8;
+  const circumference=2*Math.PI*r;
+  const incDash=circumference*incPct;
+  const expDash=circumference*expPct;
+  // Start from top (-90deg = -Math.PI/2)
+  const incStart=0;
+  const expStart=circumference*incPct;
+  document.getElementById('ringChart').innerHTML=`
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg)" stroke-width="${stroke}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--green)" stroke-width="${stroke}"
+      stroke-dasharray="${incDash} ${circumference-incDash}"
+      stroke-dashoffset="${circumference/4}" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--red)" stroke-width="${stroke}"
+      stroke-dasharray="${expDash} ${circumference-expDash}"
+      stroke-dashoffset="${circumference/4-expStart}" stroke-linecap="round"/>
+  `;
+  const net=inc-exp;
+  document.getElementById('ringLabels').innerHTML=`
+    <div class="ring-label-row"><span class="rl">الإيرادات</span><span class="rv" style="color:var(--green)">${fmt(inc)} د.ك</span></div>
+    <div class="ring-label-row"><span class="rl">المصروفات</span><span class="rv" style="color:var(--red)">${fmt(exp)} د.ك</span></div>
+    <div class="ring-label-row" style="margin-top:4px;border-top:1px solid var(--border);padding-top:4px">
+      <span class="rl">الصافي</span>
+      <span class="rv" style="color:${net>=0?'var(--green)':'var(--red)'}">${net>=0?'+':''}${fmt(net)} د.ك</span>
+    </div>
+  `;
+}
+
+/* DAILY */
+function renderDaily(){
+  const [y,m,d]=currentDay.split('-').map(Number);
+  const dt=new Date(currentDay);
+  const isToday=currentDay===today();
+  document.getElementById('dayNavLabel').innerHTML=
+    (isToday?'<span class="today-badge">اليوم</span>':'')+
+    `${DAYS[dt.getDay()]} ${d} ${MONTHS[m-1]} ${y}`;
+  const filtered=transactions.filter(t=>t.date===currentDay);
+  const inc=filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp=filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  let html='';
+  if(filtered.length===0){
+    html=`<div class="empty-state"><div class="eicon">📭</div><p>لا توجد حركات في هذا اليوم<br>اضغط + لإضافة حركة جديدة</p></div>`;
+  } else {
+    filtered.forEach((t,i)=>{
+      const cat=catById(t.cat,t.type);
+      const bg=t.type==='income'?'var(--green-bg)':'var(--red-bg)';
+      html+=`<div class="trans-card" style="animation-delay:${i*.04}s">
+        <div class="trans-icon" style="background:${bg}">${cat.emoji}</div>
+        <div class="trans-body">
+          <div class="trans-name">${t.desc}</div>
+          <div class="trans-sub">${cat.name}${t.time?' • '+t.time:''}${t.note?' • '+t.note:''}</div>
+        </div>
+        <div class="trans-right">
+          <div class="trans-amount ${t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
+          <div class="trans-actions">
+            <button class="btn-act edit" onclick="editTransaction(${t.id})">✏️</button>
+            <button class="btn-act del" onclick="deleteTransaction(${t.id})">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    const net=inc-exp;
+    html+=`<div class="day-summary">
+      <div class="day-summary-label">صافي اليوم</div>
+      <div class="day-summary-val" style="color:${net>=0?'var(--green)':'var(--red)'}">${net>=0?'+':''}${fmt(net)} د.ك</div>
+    </div>`;
+  }
+  document.getElementById('dailyContent').innerHTML=html;
+}
+
+/* MONTHLY */
+function renderMonthly(){
+  const grouped={};
+  transactions.forEach(t=>{
+    const k=monthKey(t.date);
+    if(!grouped[k])grouped[k]=[];
+    grouped[k].push(t);
+  });
+  const keys=Object.keys(grouped).sort().reverse();
+  if(keys.length===0){
+    document.getElementById('monthlyContent').innerHTML=
+      `<div class="empty-state"><div class="eicon">📊</div><p>لا توجد بيانات بعد<br>ابدأ بإضافة حركاتك</p></div>`;
+    return;
+  }
+  const maxV=Math.max(...keys.map(k=>{
+    const it=grouped[k];
+    return Math.max(it.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0),it.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
+  }));
+  document.getElementById('monthlyContent').innerHTML=keys.map((key,i)=>{
+    const items=grouped[key];
+    const inc=items.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    const exp=items.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    const net=inc-exp;
+    const [y2,m2]=key.split('-');
+    const iW=maxV>0?(inc/maxV*100):0;
+    const eW=maxV>0?(exp/maxV*100):0;
+    return `<div class="month-card" style="animation-delay:${i*.05}s">
+      <div class="month-card-header">
+        <div class="month-card-name">📅 ${MONTHS[parseInt(m2)-1]} ${y2}</div>
+        <div class="net-badge" style="background:${net>=0?'var(--green-bg)':'var(--red-bg)'};color:${net>=0?'var(--green)':'var(--red)'}">
+          ${net>=0?'+':''}${fmt(net)} د.ك
+        </div>
+      </div>
+      <div class="bars-wrap">
+        <div class="bar-row">
+          <div class="bar-label" style="color:var(--green)">إيرادات</div>
+          <div class="bar-track"><div class="bar-fill g" style="width:${iW}%"></div></div>
+          <div class="bar-val g">+${fmt(inc)}</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label" style="color:var(--red)">مصروفات</div>
+          <div class="bar-track"><div class="bar-fill r" style="width:${eW}%"></div></div>
+          <div class="bar-val r">-${fmt(exp)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* BUDGET */
+function setBudget(catId,val){
+  const v=parseFloat(val);
+  if(!isNaN(v)&&v>0)budgets[catId]=v;else delete budgets[catId];
+  saveBudgets();renderBudget();checkBudgetAlerts();
+}
+
+function checkBudgetAlerts(){
+  const nowK=new Date().toISOString().substring(0,7);
+  const alerts=[];
+  CATS.expense.forEach(cat=>{
+    if(!budgets[cat.id])return;
+    const spent=transactions.filter(t=>t.type==='expense'&&t.cat===cat.id&&t.date.startsWith(nowK)).reduce((s,t)=>s+t.amount,0);
+    const pct=spent/budgets[cat.id];
+    if(pct>=1)alerts.push({cls:'warn',msg:`⚠️ تجاوزت ميزانية ${cat.name}! (${fmt(spent)} / ${fmt(budgets[cat.id])} د.ك)`});
+    else if(pct>=0.8)alerts.push({cls:'info',msg:`🔔 اقتربت من حد ميزانية ${cat.name} (${Math.round(pct*100)}%)`});
+  });
+  document.getElementById('alertsArea').innerHTML=alerts.map(a=>`<div class="alert-banner ${a.cls}">${a.msg}</div>`).join('');
+}
+
+function renderBudget(){
+  const nowK=new Date().toISOString().substring(0,7);
+  let html=`<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px;padding:0 2px">حدد ميزانيتك الشهرية لكل فئة</div>`;
+  CATS.expense.forEach((cat,i)=>{
+    const spent=transactions.filter(t=>t.type==='expense'&&t.cat===cat.id&&t.date.startsWith(nowK)).reduce((s,t)=>s+t.amount,0);
+    const budget=budgets[cat.id]||0;
+    const pct=budget>0?Math.min(spent/budget,1):0;
+    const over=budget>0&&spent>budget;
+    const near=budget>0&&pct>=0.8&&!over;
+    const barColor=over?'var(--red)':near?'var(--gold)':'var(--green)';
+    const statusText=budget===0?'':over?
+      `<span class="budget-status" style="color:var(--red)">⚠️ تجاوزت بـ ${fmt(spent-budget)} د.ك</span>`:
+      `<span class="budget-status" style="color:${near?'var(--gold)':'var(--muted)'}">تبقى ${fmt(budget-spent)} د.ك</span>`;
+    html+=`<div class="budget-card" style="animation-delay:${i*.03}s">
+      <div class="budget-card-header">
+        <div class="budget-cat-name">${cat.emoji} ${cat.name}</div>
+        <div class="budget-amounts">${fmt(spent)}${budget>0?' / '+fmt(budget):''} د.ك</div>
+      </div>
+      ${budget>0?`<div class="budget-bar-track"><div class="budget-bar-fill" style="width:${pct*100}%;background:${barColor}"></div></div>${statusText}`:''}
+      <div class="budget-edit-row">
+        <input class="budget-input" type="number" id="bi_${cat.id}" placeholder="حدد الميزانية..." value="${budget||''}" min="0" step="0.001" />
+        <button class="budget-save-btn" onclick="setBudget('${cat.id}',document.getElementById('bi_${cat.id}').value)">حفظ</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('budgetContent').innerHTML=html;
+}
+
+/* CHART */
+function renderChart(){
+  const grouped={};
+  transactions.forEach(t=>{const k=monthKey(t.date);if(!grouped[k])grouped[k]=[];grouped[k].push(t)});
+  const keys=Object.keys(grouped).sort().reverse();
+  if(keys.length===0){
+    document.getElementById('chartContent').innerHTML='<div class="empty-state"><div class="eicon">📈</div><p>لا توجد بيانات بعد</p></div>';
+    return;
+  }
+  if(!keys.includes(chartMonth))chartMonth=keys[0];
+  const chips=keys.map(k=>{
+    const [y2,m2]=k.split('-');
+    return `<button class="month-chip ${k===chartMonth?'active':''}" onclick="chartMonth='${k}';renderChart()">${MONTHS[parseInt(m2)-1]} ${y2}</button>`;
+  }).join('');
+
+  const [cy,cm]=chartMonth.split('-');
+  const dim=new Date(parseInt(cy),parseInt(cm),0).getDate();
+  const incData=[],expData=[];
+  for(let d2=1;d2<=dim;d2++){
+    const ds=`${cy}-${cm}-${String(d2).padStart(2,'0')}`;
+    const dt=transactions.filter(t=>t.date===ds);
+    incData.push(dt.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0));
+    expData.push(dt.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0));
+  }
+  const maxV=Math.max(...incData,...expData,1);
+  const W=320,H=130,PAD=8,BW=Math.max(2,Math.floor((W-PAD*2)/dim)-1);
+  let bars='',lbls='';
+  for(let i=0;i<dim;i++){
+    const x=PAD+i*((W-PAD*2)/dim);
+    const iH=(incData[i]/maxV)*H;
+    const eH=(expData[i]/maxV)*H;
+    if(iH>0)bars+=`<rect x="${x}" y="${H-iH}" width="${BW*.46}" height="${iH}" fill="var(--green)" rx="2" opacity=".85"/>`;
+    if(eH>0)bars+=`<rect x="${x+BW*.5}" y="${H-eH}" width="${BW*.46}" height="${eH}" fill="var(--red)" rx="2" opacity=".85"/>`;
+  }
+  for(let i=0;i<dim;i+=5){
+    const x=PAD+i*((W-PAD*2)/dim)+BW/2;
+    lbls+=`<text x="${x}" y="${H+13}" text-anchor="middle" font-size="8" fill="var(--muted)">${i+1}</text>`;
+  }
+  const tInc=incData.reduce((s,v)=>s+v,0);
+  const tExp=expData.reduce((s,v)=>s+v,0);
+
+  // Donut data
+  const catTotals={};
+  transactions.filter(t=>t.type==='expense'&&t.date.startsWith(chartMonth)).forEach(t=>{
+    catTotals[t.cat]=(catTotals[t.cat]||0)+t.amount;
+  });
+  const entries=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const total=entries.reduce((s,[,v])=>s+v,0);
+
+  let donutSvg='';
+  let donutRows='';
+  if(total>0){
+    const R=30,cx2=36,cy2=36,sw=14;
+    const circ=2*Math.PI*R;
+    let offset=circ/4;
+    entries.forEach(([catId,val],i)=>{
+      const pct=val/total;
+      const dash=circ*pct;
+      const color=COLORS[i%COLORS.length];
+      donutSvg+=`<circle cx="${cx2}" cy="${cy2}" r="${R}" fill="none" stroke="${color}" stroke-width="${sw}"
+        stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${offset}" stroke-linecap="butt"/>`;
+      offset-=dash;
+      const cat=catById(catId,'expense');
+      donutRows+=`<div class="cat-list-item">
+        <div class="cat-color-dot" style="background:${color}"></div>
+        <div class="cat-list-name">${cat.emoji} ${cat.name}</div>
+        <div class="cat-list-pct">${(pct*100).toFixed(1)}%</div>
+        <div class="cat-list-val">${fmt(val)}</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('chartContent').innerHTML=`
+    <div class="month-chips">${chips}</div>
+    <div class="chart-wrap">
+      <div class="chart-title">المصروفات والإيرادات اليومية — ${MONTHS[parseInt(cm)-1]} ${cy}</div>
+      <div style="overflow-x:auto">
+        <svg viewBox="0 0 ${W} ${H+18}" width="100%" style="display:block">
+          ${bars}${lbls}
+        </svg>
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:var(--green)"></span>إيرادات: ${fmt(tInc)} د.ك</span>
+        <span><span class="legend-dot" style="background:var(--red)"></span>مصروفات: ${fmt(tExp)} د.ك</span>
+      </div>
+    </div>
+    ${total>0?`
+    <div class="chart-wrap">
+      <div class="chart-title">توزيع المصروفات حسب الفئة</div>
+      <div class="donut-section">
+        <div class="donut-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">${donutSvg}
+            <circle cx="36" cy="36" r="23" fill="var(--surface)"/>
+            <text x="36" y="40" text-anchor="middle" font-size="10" font-weight="700" fill="var(--text)">${entries.length}</text>
+          </svg>
+        </div>
+        <div>${donutRows}</div>
+      </div>
+    </div>`:''}
+  `;
+}
+
+/* RECURRING */
+function renderRecurring(){
+  let html=`<div class="rform">
+    <div class="rform-title">➕ إضافة حركة متكررة</div>
+    <div class="type-selector" style="margin-bottom:12px">
+      <button class="type-btn active expense" id="rBtnExp" onclick="rSelectType('expense')">🔴 مصروف</button>
+      <button class="type-btn income" id="rBtnInc" onclick="rSelectType('income')">🟢 إيراد</button>
+    </div>
+    <div class="cat-label">الفئة</div>
+    <div class="cat-scroll" id="rCatScroll"></div>
+    <div class="field"><label>الاسم</label><input type="text" id="rDesc" placeholder="راتب، إيجار، اشتراك..."/></div>
+    <div class="field-row">
+      <div class="field" style="margin-bottom:0"><label>المبلغ (د.ك)</label><input type="number" id="rAmount" placeholder="0.000" min="0" step="0.001"/></div>
+      <div class="field" style="margin-bottom:0"><label>التكرار</label>
+        <select id="rFreq" style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:.88rem;color:var(--text);outline:none">
+          <option value="monthly">شهري</option><option value="weekly">أسبوعي</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-submit" style="margin-top:12px" onclick="addRecurring()">✓ إضافة للقائمة</button>
+  </div>`;
+  if(recurringList.length===0){
+    html+='<div class="empty-state"><div class="eicon">🔁</div><p>لا توجد حركات متكررة بعد</p></div>';
+  } else {
+    recurringList.forEach((r,i)=>{
+      const cat=catById(r.cat,r.type);
+      const bg=r.type==='income'?'var(--green-bg)':'var(--red-bg)';
+      html+=`<div class="recurring-card" style="animation-delay:${i*.04}s">
+        <div class="trans-icon" style="background:${bg}">${cat.emoji}</div>
+        <div class="recurring-info">
+          <div class="recurring-name">${r.desc}</div>
+          <div class="recurring-meta">${cat.name} • ${fmt(r.amount)} د.ك • ${r.freq==='monthly'?'شهري':'أسبوعي'}</div>
+        </div>
+        <div class="recurring-actions">
+          <button class="btn-apply" onclick="applyRecurring(${i})">+ أضف الآن</button>
+          <div style="display:flex;gap:4px">
+            <button class="btn-act edit" onclick="editRecurring(${i})">✏️</button>
+            <button class="btn-act del" onclick="deleteRecurring(${i})">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('recurringContent').innerHTML=html;
+  rSelectType(rType);
+}
+
+function rSelectType(type){
+  rType=type;
+  document.getElementById('rBtnExp').className='type-btn'+(type==='expense'?' active expense':'');
+  document.getElementById('rBtnInc').className='type-btn'+(type==='income'?' active income':'');
+  rCat=CATS[type][0].id;rRenderCats();
+}
+function rRenderCats(){
+  document.getElementById('rCatScroll').innerHTML=CATS[rType].map(c=>
+    `<button class="cat-chip ${c.id===rCat?'selected':''}" onclick="rCat='${c.id}';rRenderCats()">${c.emoji} ${c.name}</button>`
+  ).join('');
+}
+function addRecurring(){
+  const desc=document.getElementById('rDesc').value.trim();
+  const amount=parseFloat(document.getElementById('rAmount').value);
+  const freq=document.getElementById('rFreq').value;
+  if(!desc||!amount||amount<=0){notify('❌ الرجاء إدخال الاسم والمبلغ');return}
+  recurringList.push({id:Date.now(),type:rType,cat:rCat,desc,amount,freq});
+  saveRecurring();
+  document.getElementById('rDesc').value='';
+  document.getElementById('rAmount').value='';
+  renderRecurring();notify('✅ تمت إضافة الحركة المتكررة');
+}
+function deleteRecurring(idx){
+  if(!confirm('هل تريد حذف هذه الحركة المتكررة؟'))return;
+  recurringList.splice(idx,1);saveRecurring();renderRecurring();notify('🗑️ تم الحذف');
+}
+function editRecurring(idx){
+  const r=recurringList[idx];
+  rSelectType(r.type);rCat=r.cat;rRenderCats();
+  document.getElementById('rDesc').value=r.desc;
+  document.getElementById('rAmount').value=r.amount;
+  document.getElementById('rFreq').value=r.freq;
+  const btn=document.querySelector('#recurringContent .btn-submit');
+  btn.textContent='✓ حفظ التعديل';
+  btn.onclick=()=>{
+    const desc=document.getElementById('rDesc').value.trim();
+    const amount=parseFloat(document.getElementById('rAmount').value);
+    const freq=document.getElementById('rFreq').value;
+    if(!desc||!amount||amount<=0){notify('❌ الرجاء إدخال الاسم والمبلغ');return}
+    recurringList[idx]={...recurringList[idx],type:rType,cat:rCat,desc,amount,freq};
+    saveRecurring();renderRecurring();notify('✅ تم التعديل');
+  };
+}
+function applyRecurring(idx){
+  const r=recurringList[idx];
+  const td=today();
+  const now2=new Date();
+  transactions.unshift({id:Date.now(),type:r.type,cat:r.cat,amount:r.amount,desc:r.desc,date:td,
+    time:`${String(now2.getHours()).padStart(2,'0')}:${String(now2.getMinutes()).padStart(2,'0')}`,
+    note:'متكرر - '+(r.freq==='monthly'?'شهري':'أسبوعي')});
+  save();updateAll();notify('✅ تمت إضافة "'+r.desc+'" بنجاح!');
+}
+
+/* SUMMARY */
+function renderSummary(){
+  const nowK=new Date().toISOString().substring(0,7);
+  const lastD=new Date();lastD.setMonth(lastD.getMonth()-1);
+  const lastK=lastD.toISOString().substring(0,7);
+  const thisTr=transactions.filter(t=>t.date.startsWith(nowK));
+  const lastTr=transactions.filter(t=>t.date.startsWith(lastK));
+  const tInc=thisTr.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const tExp=thisTr.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const lInc=lastTr.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const lExp=lastTr.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+
+  function badge(curr,prev){
+    if(prev===0)return'';
+    const pct=((curr-prev)/prev*100).toFixed(1);
+    const cls=curr>prev?'diff-up':curr<prev?'diff-down':'diff-same';
+    const arr=curr>prev?'↑':curr<prev?'↓':'=';
+    return`<span class="diff-badge ${cls}">${arr} ${Math.abs(pct)}%</span>`;
+  }
+
+  const catTotals={};
+  thisTr.filter(t=>t.type==='expense').forEach(t=>{catTotals[t.cat]=(catTotals[t.cat]||0)+t.amount});
+  const topCat=Object.entries(catTotals).sort((a,b)=>b[1]-a[1])[0];
+  const topCatInfo=topCat?catById(topCat[0],'expense'):null;
+  const savingsRate=tInc>0?((tInc-tExp)/tInc*100).toFixed(1):0;
+  const dayOfMonth=new Date().getDate();
+  const dailyAvg=dayOfMonth>0?(tExp/dayOfMonth).toFixed(3):0;
+  const dayCount={};
+  thisTr.forEach(t=>{dayCount[t.date]=(dayCount[t.date]||0)+1});
+  const mostActiveDay=Object.entries(dayCount).sort((a,b)=>b[1]-a[1])[0];
+
+  const insights=[];
+  if(lExp>0){
+    const diff=tExp-lExp;
+    if(diff>0)insights.push({icon:'📈',text:`مصروفاتك أعلى من الشهر اللي فات بـ <strong>${fmt(Math.abs(diff))} د.ك</strong>`});
+    else if(diff<0)insights.push({icon:'🎉',text:`ممتاز! مصروفاتك أقل بـ <strong>${fmt(Math.abs(diff))} د.ك</strong>`});
+    else insights.push({icon:'➡️',text:'مصروفاتك نفس الشهر اللي فات تقريباً'});
+  }
+  if(topCatInfo)insights.push({icon:topCatInfo.emoji,text:`أكثر فئة صرفت فيها: <strong>${topCatInfo.name}</strong> (${fmt(topCat[1])} د.ك)`});
+  if(parseFloat(savingsRate)>0)insights.push({icon:'💰',text:`نسبة الادخار: <strong>${savingsRate}%</strong> من إيراداتك`});
+  else if(tInc>0)insights.push({icon:'⚠️',text:`مصروفاتك تتجاوز إيراداتك بنسبة <strong>${Math.abs(savingsRate)}%</strong>`});
+  if(mostActiveDay)insights.push({icon:'📅',text:`أكثر يوم نشاط: يوم <strong>${parseInt(mostActiveDay[0].split('-')[2])}</strong> (${mostActiveDay[1]} حركة)`});
+  insights.push({icon:'📊',text:`متوسط صرفك اليومي: <strong>${dailyAvg} د.ك</strong>`});
+
+  const[tY,tM]=nowK.split('-');
+  const[lY,lM]=lastK.split('-');
+  const totInc=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const totExp=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+
+  document.getElementById('summaryContent').innerHTML=`
+    <div class="summary-card">
+      <div class="summary-card-title">📊 مقارنة الشهر الحالي بالشهر السابق</div>
+      <div class="summary-row"><span class="lbl">الإيرادات — ${MONTHS[parseInt(tM)-1]}</span><span class="val" style="color:var(--green)">${fmt(tInc)} ${badge(tInc,lInc)}</span></div>
+      <div class="summary-row"><span class="lbl">الإيرادات — ${MONTHS[parseInt(lM)-1]}</span><span class="val" style="color:var(--green)">${fmt(lInc)}</span></div>
+      <div class="summary-row"><span class="lbl">المصروفات — ${MONTHS[parseInt(tM)-1]}</span><span class="val" style="color:var(--red)">${fmt(tExp)} ${badge(tExp,lExp)}</span></div>
+      <div class="summary-row"><span class="lbl">المصروفات — ${MONTHS[parseInt(lM)-1]}</span><span class="val" style="color:var(--red)">${fmt(lExp)}</span></div>
+      <div class="summary-row"><span class="lbl">الصافي — ${MONTHS[parseInt(tM)-1]}</span><span class="val" style="color:${tInc-tExp>=0?'var(--green)':'var(--red)'}">${fmt(tInc-tExp)}</span></div>
+    </div>
+    <div class="summary-card" style="animation-delay:.1s">
+      <div class="summary-card-title">💡 تحليل ذكي</div>
+      ${insights.map(i=>`<div class="insight-item"><span class="insight-icon">${i.icon}</span><span>${i.text}</span></div>`).join('')}
+    </div>
+    <div class="summary-card" style="animation-delay:.2s">
+      <div class="summary-card-title">📈 إجماليات كل الوقت</div>
+      <div class="summary-row"><span class="lbl">إجمالي الإيرادات</span><span class="val" style="color:var(--green)">${fmt(totInc)} د.ك</span></div>
+      <div class="summary-row"><span class="lbl">إجمالي المصروفات</span><span class="val" style="color:var(--red)">${fmt(totExp)} د.ك</span></div>
+      <div class="summary-row"><span class="lbl">صافي كل الوقت</span><span class="val" style="color:${totInc-totExp>=0?'var(--green)':'var(--red)'}">${fmt(totInc-totExp)} د.ك</span></div>
+      <div class="summary-row"><span class="lbl">عدد الحركات الكلي</span><span class="val">${transactions.length} حركة</span></div>
+    </div>
+  `;
+}
+
+/* SEARCH */
+function renderSearch(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const wrap=document.getElementById('searchResults');
+  if(!q){wrap.style.display='none';return}
+  wrap.style.display='';
+  const found=transactions.filter(t=>
+    t.desc.toLowerCase().includes(q)||(t.note||'').toLowerCase().includes(q)||
+    catById(t.cat,t.type).name.includes(q)||t.date.includes(q)
+  ).slice(0,20);
+  if(found.length===0){wrap.innerHTML='<div class="empty-state" style="padding:16px"><p>لا توجد نتائج</p></div>';return}
+  wrap.innerHTML=found.map(t=>{
+    const cat=catById(t.cat,t.type);
+    const bg=t.type==='income'?'var(--green-bg)':'var(--red-bg)';
+    return`<div class="trans-card">
+      <div class="trans-icon" style="background:${bg}">${cat.emoji}</div>
+      <div class="trans-body"><div class="trans-name">${t.desc}</div><div class="trans-sub">${t.date} • ${cat.name}</div></div>
+      <div class="trans-right">
+        <div class="trans-amount ${t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div>
+        <div class="trans-actions">
+          <button class="btn-act edit" onclick="editTransaction(${t.id})">✏️</button>
+          <button class="btn-act del" onclick="deleteTransaction(${t.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* DATA MODAL */
+function openDataModal(){
+  document.getElementById('dataModalTitle').textContent='📁 إدارة البيانات';
+  document.getElementById('dataModalContent').innerHTML=`
+    <button class="action-btn" onclick="exportAllExcel()"><span class="action-icon">📊</span><span class="action-text">تصدير كشف كامل (Excel)<span class="action-sub">كل الإيرادات والمصروفات حتى اليوم</span></span></button>
+    <button class="action-btn" onclick="showMonthExport()"><span class="action-icon">📅</span><span class="action-text">تصدير شهر محدد (Excel)<span class="action-sub">اختر الشهر الذي تريد تصديره</span></span></button>
+    <button class="action-btn" onclick="exportBackup()"><span class="action-icon">💾</span><span class="action-text">حفظ نسخة احتياطية (JSON)<span class="action-sub">لاستيرادها لاحقاً في أي نسخة</span></span></button>
+    <button class="action-btn" onclick="document.getElementById('importFileInput').click()"><span class="action-icon">📥</span><span class="action-text">استيراد بيانات من نسخة قديمة<span class="action-sub">استيراد ملف JSON محفوظ مسبقاً</span></span></button>
+    <button class="action-btn" onclick="migrateFromV2()" style="border-color:var(--purple);background:var(--purple-bg);color:var(--purple)"><span class="action-icon">🔄</span><span class="action-text">استيراد من مصروفاتي v2<span class="action-sub">نقل بياناتك القديمة تلقائياً من هذا المتصفح</span></span></button>
+    <button class="btn-cancel-data" onclick="closeDataModal()">إلغاء</button>
+  `;
+  document.getElementById('dataModalOverlay').classList.add('open');
+}
+function migrateFromV2(){
+  const old=localStorage.getItem('masrofati_v2');
+  if(!old){notify('❌ لا توجد بيانات في النسخة القديمة');return}
+  try{
+    const arr=JSON.parse(old);
+    const existingIds=new Set(transactions.map(t=>t.id));
+    const newItems=arr.filter(t=>!existingIds.has(t.id));
+    if(newItems.length===0){notify('لا توجد بيانات جديدة للنقل');return}
+    if(confirm(`سيتم نقل ${newItems.length} حركة من v2. هل تريد المتابعة؟`)){
+      transactions=[...transactions,...newItems].sort((a,b)=>b.id-a.id);
+      save();updateAll();closeDataModal();notify(`✅ تم نقل ${newItems.length} حركة بنجاح!`);
+    }
+  }catch{notify('❌ حدث خطأ أثناء النقل')}
+}
+function showMonthExport(){
+  const grouped={};
+  transactions.forEach(t=>{const k=monthKey(t.date);if(!grouped[k])grouped[k]=[];grouped[k].push(t)});
+  const keys=Object.keys(grouped).sort().reverse();
+  if(keys.length===0){notify('لا توجد بيانات');return}
+  let btns=keys.map(k=>{const[y2,m2]=k.split('-');return`<button class="month-export-btn" onclick="exportMonthExcel('${k}')">${MONTHS[parseInt(m2)-1]} ${y2}</button>`}).join('');
+  document.getElementById('dataModalTitle').textContent='📅 اختر الشهر';
+  document.getElementById('dataModalContent').innerHTML=`<div class="month-export-grid">${btns}</div><button class="btn-cancel-data" onclick="openDataModal()">← رجوع</button>`;
+}
+function closeDataModal(){document.getElementById('dataModalOverlay').classList.remove('open')}
+function closeDataModalOutside(e){if(e.target===document.getElementById('dataModalOverlay'))closeDataModal()}
+
+/* EXCEL EXPORT */
+function transToRows(list){
+  return list.map(t=>{
+    const cat=catById(t.cat,t.type);
+    return[t.date,t.time||'',t.type==='income'?'إيراد':'مصروف',cat.name,t.desc,
+      t.type==='income'?t.amount:'',t.type==='expense'?t.amount:'',t.note||''];
+  });
+}
+function buildCSV(rows,headers){
+  const esc=v=>`"${String(v).replace(/"/g,'""')}"`;
+  return[headers,...rows].map(r=>r.map(esc).join(',')).join('\n');
+}
+function downloadCSV(csv,filename){
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+function exportAllExcel(){
+  if(transactions.length===0){notify('لا توجد بيانات');return}
+  const sorted=[...transactions].sort((a,b)=>(a.date+a.time)>(b.date+b.time)?1:-1);
+  const headers=['التاريخ','الوقت','النوع','الفئة','البيان','الإيراد (د.ك)','المصروف (د.ك)','ملاحظة'];
+  const rows=transToRows(sorted);
+  const tI=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const tE=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  rows.push([]);rows.push(['','','','','الإجمالي',tI.toFixed(3),tE.toFixed(3),'']);
+  rows.push(['','','','','الصافي','',( tI-tE).toFixed(3),'']);
+  downloadCSV(buildCSV(rows,headers),`مصروفاتي_كشف_كامل_${today()}.csv`);
+  closeDataModal();notify('✅ تم التصدير بنجاح');
+}
+function exportMonthExcel(mk){
+  const list=transactions.filter(t=>t.date.startsWith(mk));
+  if(list.length===0){notify('لا توجد بيانات');return}
+  const sorted=[...list].sort((a,b)=>(a.date+a.time)>(b.date+b.time)?1:-1);
+  const headers=['التاريخ','الوقت','النوع','الفئة','البيان','الإيراد (د.ك)','المصروف (د.ك)','ملاحظة'];
+  const rows=transToRows(sorted);
+  const inc=list.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp=list.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  rows.push([]);rows.push(['','','','','إجمالي الشهر',inc.toFixed(3),exp.toFixed(3),'']);
+  rows.push(['','','','','صافي الشهر','',( inc-exp).toFixed(3),'']);
+  const[y2,m2]=mk.split('-');
+  downloadCSV(buildCSV(rows,headers),`مصروفاتي_${MONTHS[parseInt(m2)-1]}_${y2}.csv`);
+  closeDataModal();notify('✅ تم التصدير بنجاح');
+}
+function exportBackup(){
+  if(transactions.length===0){notify('لا توجد بيانات');return}
+  const blob=new Blob([JSON.stringify(transactions,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`masrofati_backup_v3_${today()}.json`;a.click();URL.revokeObjectURL(url);
+  closeDataModal();notify('✅ تم حفظ النسخة الاحتياطية');
+}
+function handleImportFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const imp=JSON.parse(ev.target.result);
+      if(!Array.isArray(imp))throw new Error();
+      const existingIds=new Set(transactions.map(t=>t.id));
+      const newItems=imp.filter(t=>!existingIds.has(t.id));
+      const dups=imp.length-newItems.length;
+      if(newItems.length===0){notify('لا توجد بيانات جديدة - كل البيانات موجودة بالفعل');return}
+      const msg=dups>0?`سيتم إضافة ${newItems.length} حركة جديدة (تجاهل ${dups} مكررة). هل تريد المتابعة؟`
+        :`سيتم إضافة ${newItems.length} حركة جديدة. هل تريد المتابعة؟`;
+      if(confirm(msg)){
+        transactions=[...transactions,...newItems].sort((a,b)=>b.id-a.id);
+        save();updateAll();closeDataModal();notify(`✅ تم استيراد ${newItems.length} حركة بنجاح!`);
+      }
+    }catch{notify('❌ الملف غير صالح')}
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+/* UPDATE ALL */
+function updateAll(){updateStats();renderDaily();renderMonthly();checkBudgetAlerts();renderSearch()}
+
+/* INIT */
+const now=new Date();
+document.getElementById('headerDate').textContent=`${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+selectType('expense');
+updateAll();
+setTimeout(checkBudgetAlerts,200);
+</script>
+
+<!-- BANNERS HTML -->
+<div class="install-banner" id="installBanner">
+  <div style="font-size:1.5rem">💼</div>
+  <div class="install-banner-text">
+    <div class="install-banner-title">ثبّت مصروفاتي</div>
+    <div class="install-banner-sub">شغّله زي أي تطبيق بدون نت</div>
+  </div>
+  <button class="install-banner-btn" id="installBtn">تثبيت</button>
+  <button class="install-banner-close" id="installClose">✕</button>
+</div>
+
+<div class="ios-banner" id="iosBanner">
+  <button class="ios-banner-close" id="iosBannerClose">✕</button>
+  <div class="ios-banner-title">💼 ثبّت مصروفاتي على هاتفك</div>
+  <div class="ios-banner-steps">
+    1️⃣ اضغط على زر المشاركة <strong>⬆️</strong> في Safari<br>
+    2️⃣ اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong><br>
+    3️⃣ اضغط <strong>إضافة</strong> ✅
+  </div>
+</div>
+
+<!-- PWA: Inline Manifest -->
+<script>
+// Build manifest as blob URL
+const manifest={
+  name:'مصروفاتي',
+  short_name:'مصروفاتي',
+  description:'تطبيق إدارة المصروفات الشخصية',
+  start_url:'.',
+  display:'standalone',
+  orientation:'portrait',
+  background_color:'#141928',
+  theme_color:'#141928',
+  lang:'ar',
+  dir:'rtl',
+  icons:[
+    {src:buildIcon('#141928','#4f6ef7'),sizes:'192x192',type:'image/png',purpose:'any maskable'},
+    {src:buildIcon('#141928','#4f6ef7'),sizes:'512x512',type:'image/png',purpose:'any maskable'}
+  ]
+};
+function buildIcon(bg,fg){
+  const c=document.createElement('canvas');c.width=512;c.height=512;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle=bg;
+  ctx.beginPath();ctx.roundRect(0,0,512,512,100);ctx.fill();
+  ctx.fillStyle=fg;ctx.font='bold 260px serif';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('💼',256,270);
+  return c.toDataURL('image/png');
+}
+const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+document.getElementById('manifestLink').href=URL.createObjectURL(mBlob);
+
+// Service Worker (inline as blob)
+const swCode=`
+const CACHE='masrofati-v3';
+const ASSETS=[self.location.href];
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch',e=>{
+  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match(e.request))));
+});
+`;
+const swBlob=new Blob([swCode],{type:'application/javascript'});
+const swUrl=URL.createObjectURL(swBlob);
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+// Install prompt (Android/Chrome)
+let deferredPrompt=null;
+const installBanner=document.getElementById('installBanner');
+const installBtn=document.getElementById('installBtn');
+const installClose=document.getElementById('installClose');
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  // Show banner after 2s
+  setTimeout(()=>{
+    if(!localStorage.getItem('pwa_installed')&&!localStorage.getItem('pwa_dismissed')){
+      installBanner.classList.add('show');
+    }
+  },2000);
+});
+
+installBtn.addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted'){
+    localStorage.setItem('pwa_installed','1');
+    notify('✅ تم تثبيت التطبيق بنجاح!');
+  }
+  deferredPrompt=null;
+  installBanner.classList.remove('show');
+});
+
+installClose.addEventListener('click',()=>{
+  installBanner.classList.remove('show');
+  localStorage.setItem('pwa_dismissed','1');
+});
+
+window.addEventListener('appinstalled',()=>{
+  installBanner.classList.remove('show');
+  localStorage.setItem('pwa_installed','1');
+  notify('✅ تم تثبيت التطبيق!');
+});
+
+// iOS detection
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+const iosBanner=document.getElementById('iosBanner');
+const iosBannerClose=document.getElementById('iosBannerClose');
+
+if(isIOS&&!isInStandalone&&!localStorage.getItem('ios_dismissed')){
+  setTimeout(()=>iosBanner.classList.add('show'),2500);
+}
+iosBannerClose.addEventListener('click',()=>{
+  iosBanner.classList.remove('show');
+  localStorage.setItem('ios_dismissed','1');
+});
+</script>
+</body>
+</html>
