@@ -473,7 +473,7 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
   <div class="quick">
     <button class="qbtn" onclick="openModal()"><span class="qi">➕</span><span data-ar="إضافة" data-en="Add">إضافة</span></button>
     <button class="qbtn" onclick="switchTab('budget',document.querySelectorAll('.tab')[2])"><span class="qi">🎯</span><span data-ar="الميزانية" data-en="Budget">الميزانية</span></button>
-    <button class="qbtn" onclick="switchTab('chart',document.querySelectorAll('.tab')[3])"><span class="qi">📈</span><span data-ar="الرسوم" data-en="Charts">الرسوم</span></button>
+    <button class="qbtn" onclick="openExportModal()"><span class="qi">📤</span><span data-ar="كشف" data-en="Export">كشف</span></button>
     <button class="qbtn ai-btn" onclick="openAI()"><span class="qi">🤖</span><span data-ar="AI" data-en="AI">AI</span></button>
   </div>
   <div class="srch"><span class="srch-ico">🔍</span><input type="text" id="searchInput" class="srch-in" oninput="renderSearch()"/></div>
@@ -577,12 +577,12 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:var(--bg);color:va
 // ===== DATA =====
 // Expense has ONLY 2 categories
 const CAT_GROUPS={
-  travel_housing:{id:'travel_housing',emoji:'✈️',name:{ar:'سفر وإقامة',en:'Travel & Stay'},color:'#6c63ff'},
+  travel_housing:{id:'travel_housing',emoji:'✈️',name:{ar:'إيجار وسفر وإقامة',en:'Rent, Travel & Stay'},color:'#6c63ff'},
   general:{id:'general',emoji:'🛍️',name:{ar:'مصروفات عامة',en:'General Expenses'},color:'#f97316'},
 };
 const CATS={
   expense:[
-    {id:'travel_housing',emoji:'✈️',name:{ar:'سفر وإقامة',en:'Travel & Stay'},group:'travel_housing'},
+    {id:'travel_housing',emoji:'✈️',name:{ar:'إيجار وسفر وإقامة',en:'Rent, Travel & Stay'},group:'travel_housing'},
     {id:'general',emoji:'🛍️',name:{ar:'مصروفات عامة',en:'General Expenses'},group:'general'},
   ],
   income:[{id:'salary',emoji:'💰',name:{ar:'مرتب',en:'Salary'}},{id:'bonus',emoji:'🎁',name:{ar:'مكافأة',en:'Bonus'}},{id:'freelance',emoji:'💻',name:{ar:'عمل حر',en:'Freelance'}},{id:'investment',emoji:'📈',name:{ar:'استثمار',en:'Investment'}},{id:'gift',emoji:'🎀',name:{ar:'هدية',en:'Gift'}},{id:'income_rent',emoji:'🏢',name:{ar:'إيجار مستلم',en:'Rent Received'}},{id:'refund',emoji:'↩️',name:{ar:'استرداد',en:'Refund'}},{id:'other_inc',emoji:'✨',name:{ar:'أخرى',en:'Other'}}]
@@ -958,13 +958,19 @@ async function sendAIMessage(userMsg){
   chat.innerHTML+=`<div class="typing" id="typingDot">● يكتب...</div>`;
   chat.scrollTop=chat.scrollHeight;
   const context=getFinancialContext();
-  const systemPrompt=`أنت مساعد مالي شخصي مصري ظريف وبتتكلم بالعامية المصرية. بتحلل بيانات مصروفات المستخدم وبتديه نصايح ماليه عملية ومفيدة. أسلوبك مرح وبتعمل روش بشكل خفيف بس مفيد. لو المصروفات عالية بتقول كلام زي "يا عم ده كتير أوي" أو "انت بتصرف زي ما عندك معدن في البيت". لو الأمور كويسة بتمدح. دايما خلي نهاية ردك بنصيحة عملية محددة. الردود تكون مختصرة ومفيدة (3-5 جمل).
-
-${context}`;
+  const systemPrompt=`أنت مساعد مالي شخصي مصري ظريف وبتتكلم بالعامية المصرية. بتحلل بيانات مصروفات المستخدم وبتديه نصايح ماليه عملية ومفيدة. أسلوبك مرح وبتعمل روش بشكل خفيف بس مفيد. لو المصروفات عالية بتقول كلام زي "يا عم ده كتير أوي" أو "انت بتصرف زي ما عندك معدن في البيت". لو الأمور كويسة بتمدح. دايما خلي نهاية ردك بنصيحة عملية محددة. الردود تكون مختصرة ومفيدة (3-5 جمل).\n\n${context}`;
+  const GEMINI_KEY='AIzaSyBlpdqKzJTXfkf-QIlMWEjvhYWNJwU4_Cw';
   try{
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[...aiHistory,{role:'user',content:userMsg}]})});
+    const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system_instruction:{parts:[{text:systemPrompt}]},
+        contents:[...aiHistory.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),{role:'user',parts:[{text:userMsg}]}]
+      })
+    });
     const data=await resp.json();
-    const reply=data.content?.[0]?.text||'معلش حصل خطأ، جرب تاني!';
+    const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'معلش حصل خطأ، جرب تاني!';
     aiHistory.push({role:'user',content:userMsg},{role:'assistant',content:reply});
     if(aiHistory.length>10)aiHistory=aiHistory.slice(-10);
     document.getElementById('typingDot')?.remove();
@@ -1205,7 +1211,7 @@ function updateParticles(){
 
 // ===== EXPORT: EXCEL + PDF =====
 function getCatGroupName(catId){
-  return catId==='travel_housing'?t('سفر وإقامة','Travel & Stay'):t('مصروفات عامة','General Expenses');
+  return catId==='travel_housing'?t('إيجار وسفر وإقامة','Rent, Travel & Stay'):t('مصروفات عامة','General Expenses');
 }
 
 function exportExcelFull(filterGroup){
@@ -1217,7 +1223,7 @@ function exportExcelFull(filterGroup){
   const rows=list.map(tr=>{const cat=catById(tr.cat,'expense');return[tr.date,tr.time||'',catName(cat),getCatGroupName(tr.cat),tr.desc,tr.amount,tr.note||'']});
   const total=list.reduce((s,tr)=>s+tr.amount,0);
   rows.push([]);rows.push(['','','','',t('الإجمالي','Total'),total.toFixed(CURRENCIES[curCur].dec),'']);
-  const title=filterGroup?(filterGroup==='travel_housing'?t('سفر وإقامة','Travel & Stay'):t('مصروفات عامة','General Expenses')):t('كل المصروفات','All Expenses');
+  const title=filterGroup?(filterGroup==='travel_housing'?t('إيجار وسفر وإقامة','Rent, Travel & Stay'):t('مصروفات عامة','General Expenses')):t('كل المصروفات','All Expenses');
   const esc=v=>`"${String(v).replace(/"/g,'""')}"`;
   const csv=[t('كشف مصروفاتي - ','Masrofati Report - ')+title,[headers,...rows].map(r=>r.map(esc).join(',')).join('\n')].join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
@@ -1233,7 +1239,7 @@ async function exportPDF(filterGroup){
     await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s)});
   }
   const {jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const title=filterGroup?(filterGroup==='travel_housing'?'Travel & Stay - سفر وإقامة':'General Expenses - مصروفات عامة'):'All Expenses - كل المصروفات';
+  const title=filterGroup?(filterGroup==='travel_housing'?'Rent, Travel & Stay - إيجار وسفر وإقامة':'General Expenses - مصروفات عامة'):'All Expenses - كل المصروفات';
   let list=transactions.filter(tr=>tr.type==='expense');
   if(filterGroup)list=list.filter(tr=>tr.cat===filterGroup);
   list=list.sort((a,b)=>a.date>b.date?1:-1);
@@ -1257,21 +1263,36 @@ async function exportPDF(filterGroup){
 }
 
 function openExportModal(){
-  const html=`<div class="hdl"></div><div class="sht-t">📤 ${t('تصدير الكشف','Export Report')}</div>
-  <div style="font-size:.72rem;color:var(--mut);margin-bottom:12px">${t('اختر نوع الكشف والصيغة','Choose report type and format')}</div>
-  <div style="font-weight:700;font-size:.78rem;margin-bottom:8px">📋 ${t('نوع الكشف','Report Type')}</div>
-  <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
-    <button class="act-btn" onclick="exportExcelFull(null)"><span class="act-ico">📊</span><span><strong>${t('كل المصروفات','All Expenses')}</strong><span class="act-sub">Excel/CSV</span></span></button>
-    <button class="act-btn" onclick="exportExcelFull('travel_housing')"><span class="act-ico">✈️</span><span><strong>${t('سفر وإقامة فقط','Travel & Stay Only')}</strong><span class="act-sub">Excel/CSV</span></span></button>
-    <button class="act-btn" onclick="exportExcelFull('general')"><span class="act-ico">🛍️</span><span><strong>${t('مصروفات عامة فقط','General Only')}</strong><span class="act-sub">Excel/CSV</span></span></button>
-  </div>
-  <div style="font-weight:700;font-size:.78rem;margin-bottom:8px">📄 PDF</div>
-  <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
-    <button class="act-btn" onclick="exportPDF(null)" style="border-color:rgba(249,115,22,.3)"><span class="act-ico" style="background:var(--ai-bg)">📑</span><span><strong>${t('كل المصروفات','All Expenses')}</strong><span class="act-sub">PDF</span></span></button>
-    <button class="act-btn" onclick="exportPDF('travel_housing')" style="border-color:rgba(249,115,22,.3)"><span class="act-ico" style="background:var(--ai-bg)">✈️</span><span><strong>${t('سفر وإقامة','Travel & Stay')}</strong><span class="act-sub">PDF</span></span></button>
-    <button class="act-btn" onclick="exportPDF('general')" style="border-color:rgba(249,115,22,.3)"><span class="act-ico" style="background:var(--ai-bg)">🛍️</span><span><strong>${t('مصروفات عامة','General Expenses')}</strong><span class="act-sub">PDF</span></span></button>
-  </div>
-  <button class="btn-can" onclick="closeDataModal()">${t('إغلاق','Close')}</button>`;
+  document.getElementById('dataTtl').textContent='📤 '+t('تصدير الكشف','Export Report');
+  const html=`
+  <div style="font-size:.72rem;color:var(--mut);margin-bottom:14px">${t('اختر نوع الكشف والصيغة','Choose report type and format')}</div>
+  <div style="font-weight:700;font-size:.8rem;color:var(--ac);margin-bottom:8px">📊 Excel / CSV</div>
+  <button class="act-btn" onclick="exportExcelFull(null)">
+    <span class="act-ico">📋</span>
+    <span><strong>${t('كل المصروفات مجمعة','All Expenses')}</strong><span class="act-sub">${t('إيجار وسفر وإقامة + مصروفات عامة','All categories together')}</span></span>
+  </button>
+  <button class="act-btn" onclick="exportExcelFull('travel_housing')">
+    <span class="act-ico">✈️</span>
+    <span><strong>${t('إيجار وسفر وإقامة فقط','Rent, Travel & Stay only')}</strong><span class="act-sub">Excel/CSV</span></span>
+  </button>
+  <button class="act-btn" onclick="exportExcelFull('general')">
+    <span class="act-ico">🛍️</span>
+    <span><strong>${t('مصروفات عامة فقط','General Expenses only')}</strong><span class="act-sub">Excel/CSV</span></span>
+  </button>
+  <div style="font-weight:700;font-size:.8rem;color:var(--ai);margin:14px 0 8px">📄 PDF</div>
+  <button class="act-btn" onclick="exportPDF(null)" style="border-color:rgba(249,115,22,.3)">
+    <span class="act-ico" style="background:var(--ai-bg)">📑</span>
+    <span><strong>${t('كل المصروفات مجمعة','All Expenses')}</strong><span class="act-sub">PDF</span></span>
+  </button>
+  <button class="act-btn" onclick="exportPDF('travel_housing')" style="border-color:rgba(249,115,22,.3)">
+    <span class="act-ico" style="background:var(--ai-bg)">✈️</span>
+    <span><strong>${t('إيجار وسفر وإقامة فقط','Rent, Travel & Stay only')}</strong><span class="act-sub">PDF</span></span>
+  </button>
+  <button class="act-btn" onclick="exportPDF('general')" style="border-color:rgba(249,115,22,.3)">
+    <span class="act-ico" style="background:var(--ai-bg)">🛍️</span>
+    <span><strong>${t('مصروفات عامة فقط','General Expenses only')}</strong><span class="act-sub">PDF</span></span>
+  </button>
+  <button class="btn-can" style="margin-top:8px" onclick="closeDataModal()">${t('إغلاق','Close')}</button>`;
   document.getElementById('dataContent').innerHTML=html;
   document.getElementById('dataOv').classList.add('open');
 }
